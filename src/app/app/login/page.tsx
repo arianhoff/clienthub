@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
 
   const router = useRouter()
-  const supabase = createClient() as any
+  const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,10 +30,10 @@ export default function LoginPage() {
       if (authError) throw authError
       if (!authData.user) throw new Error('No se pudo iniciar sesión')
 
-      // Get user's organization
+      // Get user's profile
       const { data: profile } = await supabase
         .from('profiles')
-        .select('organization_id, role, client_id, organizations(slug)')
+        .select('organization_id, role, client_id')
         .eq('id', authData.user.id)
         .single()
 
@@ -43,24 +43,39 @@ export default function LoginPage() {
 
       // Redirect based on role
       if (profile.role === 'client' && profile.client_id) {
-        // Get client's organization slug
+        // Get client's organization
         const { data: client } = await supabase
           .from('clients')
-          .select('organizations(slug)')
+          .select('organization_id')
           .eq('id', profile.client_id)
           .single()
 
-        const orgSlug = (client?.organizations as any)?.slug
-        if (orgSlug) {
-          router.push(`/org/${orgSlug}/portal`)
+        if (client?.organization_id) {
+          // Get organization slug
+          const { data: org } = await supabase
+            .from('organizations')
+            .select('slug')
+            .eq('id', client.organization_id)
+            .single()
+
+          if (org?.slug) {
+            router.push(`/org/${org.slug}/portal`)
+          } else {
+            throw new Error('Organización no encontrada')
+          }
         } else {
-          throw new Error('Organización no encontrada')
+          throw new Error('Cliente sin organización')
         }
       } else if (profile.organization_id) {
         // Provider/admin - go to dashboard
-        const orgSlug = (profile.organizations as any)?.slug
-        if (orgSlug) {
-          router.push(`/org/${orgSlug}/dashboard`)
+        const { data: org } = await supabase
+          .from('organizations')
+          .select('slug')
+          .eq('id', profile.organization_id)
+          .single()
+
+        if (org?.slug) {
+          router.push(`/org/${org.slug}/dashboard`)
         } else {
           throw new Error('Organización no encontrada')
         }

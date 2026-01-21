@@ -19,7 +19,7 @@ export default function RegisterPage() {
   const [checkingSlug, setCheckingSlug] = useState(false)
 
   const router = useRouter()
-  const supabase = createClient() as any
+  const supabase = createClient()
 
   const generateSlug = (name: string) => {
     return name
