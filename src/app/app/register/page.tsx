@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { MessageSquare, ArrowRight, Check, AlertCircle } from 'lucide-react'
+import type { OrganizationInsert, OrganizationSelect } from '@/lib/supabase/types-helper'
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1)
@@ -96,19 +97,25 @@ export default function RegisterPage() {
       const trialEndsAt = new Date()
       trialEndsAt.setDate(trialEndsAt.getDate() + 14)
 
-      const { data: org, error: orgError } = await supabase
+      const orgData: OrganizationInsert = {
+        name: orgName.trim(),
+        slug: slug,
+        plan: 'freelance',
+        subscription_status: 'trial',
+        trial_ends_at: trialEndsAt.toISOString(),
+      }
+
+      const { data: orgResult, error: orgError } = await supabase
         .from('organizations')
-        .insert({
-          name: orgName.trim(),
-          slug: slug,
-          plan: 'freelance',
-          subscription_status: 'trial',
-          trial_ends_at: trialEndsAt.toISOString(),
-        })
+        .insert(orgData)
         .select()
         .single()
 
       if (orgError) throw orgError
+
+      const org = orgResult as OrganizationSelect
+
+      if (!org?.id) throw new Error('Error al crear organización')
 
       // 3. Update user profile with organization
       const { error: profileError } = await supabase

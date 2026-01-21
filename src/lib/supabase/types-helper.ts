@@ -19,6 +19,14 @@ export interface OrganizationSelect {
   trial_ends_at?: string | null
 }
 
+export interface OrganizationInsert {
+  name: string
+  slug: string
+  plan?: 'freelance' | 'business' | 'agency'
+  subscription_status?: 'trial' | 'active' | 'expired' | 'cancelled'
+  trial_ends_at?: string | null
+}
+
 // Client query types
 export interface ClientSelect {
   id?: string
