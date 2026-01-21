@@ -16,6 +16,8 @@ export interface Database {
           slug: string
           plan: 'freelance' | 'business' | 'agency'
           logo_url: string | null
+          subscription_status: 'trial' | 'active' | 'expired' | 'cancelled'
+          trial_ends_at: string | null
           created_at: string
           updated_at: string
         }
@@ -25,6 +27,8 @@ export interface Database {
           slug: string
           plan?: 'freelance' | 'business' | 'agency'
           logo_url?: string | null
+          subscription_status?: 'trial' | 'active' | 'expired' | 'cancelled'
+          trial_ends_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -34,6 +38,8 @@ export interface Database {
           slug?: string
           plan?: 'freelance' | 'business' | 'agency'
           logo_url?: string | null
+          subscription_status?: 'trial' | 'active' | 'expired' | 'cancelled'
+          trial_ends_at?: string | null
           created_at?: string
           updated_at?: string
         }
