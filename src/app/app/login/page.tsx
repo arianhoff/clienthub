@@ -5,20 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { MessageSquare } from 'lucide-react'
-
-interface ProfileData {
-  organization_id: string | null
-  role: 'admin' | 'team' | 'client'
-  client_id: string | null
-}
-
-interface ClientData {
-  organization_id: string
-}
-
-interface OrgData {
-  slug: string
-}
+import type { ProfileSelect, ClientSelect, OrganizationSelect } from '@/lib/supabase/types-helper'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -55,7 +42,7 @@ export default function LoginPage() {
         throw new Error('Perfil no encontrado')
       }
 
-      const profile = profileData as ProfileData
+      const profile = profileData as ProfileSelect
 
       // Redirect based on role
       if (profile.role === 'client' && profile.client_id) {
@@ -66,7 +53,7 @@ export default function LoginPage() {
           .eq('id', profile.client_id)
           .single()
 
-        const client = clientData as ClientData | null
+        const client = clientData as ClientSelect | null
 
         if (client?.organization_id) {
           // Get organization slug
@@ -76,7 +63,7 @@ export default function LoginPage() {
             .eq('id', client.organization_id)
             .single()
 
-          const org = orgData as OrgData | null
+          const org = orgData as OrganizationSelect | null
 
           if (org?.slug) {
             router.push(`/org/${org.slug}/portal`)
@@ -94,7 +81,7 @@ export default function LoginPage() {
           .eq('id', profile.organization_id)
           .single()
 
-        const org = orgData as OrgData | null
+        const org = orgData as OrganizationSelect | null
 
         if (org?.slug) {
           router.push(`/org/${org.slug}/dashboard`)
