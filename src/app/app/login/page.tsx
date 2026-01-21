@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { MessageSquare } from 'lucide-react'
+import type { Profile } from '@/types/database'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -31,15 +32,17 @@ export default function LoginPage() {
       if (!authData.user) throw new Error('No se pudo iniciar sesión')
 
       // Get user's profile
-      const { data: profile } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('organization_id, role, client_id')
         .eq('id', authData.user.id)
         .single()
 
-      if (!profile) {
+      if (profileError || !profileData) {
         throw new Error('Perfil no encontrado')
       }
+
+      const profile = profileData as Pick<Profile, 'organization_id' | 'role' | 'client_id'>
 
       // Redirect based on role
       if (profile.role === 'client' && profile.client_id) {
