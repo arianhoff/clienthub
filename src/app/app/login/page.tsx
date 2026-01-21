@@ -12,6 +12,14 @@ interface ProfileData {
   client_id: string | null
 }
 
+interface ClientData {
+  organization_id: string
+}
+
+interface OrgData {
+  slug: string
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -52,19 +60,23 @@ export default function LoginPage() {
       // Redirect based on role
       if (profile.role === 'client' && profile.client_id) {
         // Get client's organization
-        const { data: client } = await supabase
+        const { data: clientData } = await supabase
           .from('clients')
           .select('organization_id')
           .eq('id', profile.client_id)
           .single()
 
+        const client = clientData as ClientData | null
+
         if (client?.organization_id) {
           // Get organization slug
-          const { data: org } = await supabase
+          const { data: orgData } = await supabase
             .from('organizations')
             .select('slug')
             .eq('id', client.organization_id)
             .single()
+
+          const org = orgData as OrgData | null
 
           if (org?.slug) {
             router.push(`/org/${org.slug}/portal`)
@@ -76,11 +88,13 @@ export default function LoginPage() {
         }
       } else if (profile.organization_id) {
         // Provider/admin - go to dashboard
-        const { data: org } = await supabase
+        const { data: orgData } = await supabase
           .from('organizations')
           .select('slug')
           .eq('id', profile.organization_id)
           .single()
+
+        const org = orgData as OrgData | null
 
         if (org?.slug) {
           router.push(`/org/${org.slug}/dashboard`)
