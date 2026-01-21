@@ -122,9 +122,9 @@ export default function RegisterPage() {
         .from('profiles')
         .update({
           organization_id: org.id,
-          role: 'admin',
+          role: 'admin' as const,
           full_name: fullName,
-        })
+        } as any)
         .eq('id', authData.user.id)
 
       if (profileError) throw profileError
